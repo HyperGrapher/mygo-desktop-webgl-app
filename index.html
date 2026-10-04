@@ -3,20 +3,1032 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>mygoapp</title>
-    <link rel="stylesheet" href="./src/style.css" />
+    <meta name="theme-color" content="#090d13" />
+    <title>Lumen — Light Studio</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: #edf3f5;
+        background: #090d13;
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        --muted: #7e8996;
+        --line: rgba(178, 199, 218, 0.1);
+        --mint: #70f2d0;
+        --panel: rgba(18, 23, 31, 0.88);
+      }
+
+      * { box-sizing: border-box; }
+      body { min-width: 480px; min-height: 360px; width: 100vw; height: 100vh; height: 100dvh; margin: 0; overflow: hidden; background: #090d13; }
+      button, input { font: inherit; }
+      button { color: inherit; }
+
+      .app-shell {
+        width: 100%;
+        height: 100%;
+        min-height: 360px;
+        display: grid;
+        grid-template-rows: 64px minmax(0, 1fr) 28px;
+        background:
+          radial-gradient(ellipse at 57% 46%, rgba(25, 77, 74, 0.1), transparent 42%),
+          #090d13;
+      }
+
+      .topbar {
+        position: relative;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        padding: 0 22px;
+        border-bottom: 1px solid var(--line);
+        background: rgba(11, 15, 21, 0.78);
+        backdrop-filter: blur(18px);
+      }
+
+      .brand {
+        width: 194px;
+        min-width: 194px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .brand-mark {
+        position: relative;
+        width: 30px;
+        height: 30px;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(113, 244, 211, 0.42);
+        border-radius: 10px;
+        background: linear-gradient(145deg, rgba(85, 227, 192, 0.16), rgba(46, 85, 110, 0.08));
+        box-shadow: inset 0 0 16px rgba(77, 235, 201, 0.08), 0 0 22px rgba(68, 238, 196, 0.08);
+      }
+
+      .brand-mark::before {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #8bffe0;
+        box-shadow: 0 0 6px #8bffe0, 0 0 15px rgba(90, 255, 213, 0.85);
+        content: "";
+      }
+
+      .brand-name { display: block; font-size: 0.88rem; font-weight: 750; letter-spacing: 0.15em; }
+      .brand-caption { display: block; margin-top: 2px; color: #687582; font-size: 0.53rem; font-weight: 650; letter-spacing: 0.16em; }
+
+      .breadcrumb { display: flex; flex: 1; align-items: center; gap: 9px; color: var(--muted); font-size: 0.75rem; }
+      .breadcrumb strong { color: #dce5e8; font-weight: 560; }
+      .breadcrumb .slash { color: #45505b; }
+
+      .top-actions { display: flex; align-items: center; gap: 10px; }
+      .gpu-status, .top-button, .avatar, .toolbar-button, .rail-button, .preset, .swatch, .reset-button { border: 1px solid var(--line); }
+
+      .gpu-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        border-radius: 9px;
+        background: rgba(255, 255, 255, 0.025);
+        color: #9ba8b1;
+        font-size: 0.65rem;
+        font-weight: 680;
+        letter-spacing: 0.08em;
+      }
+
+      .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #63e9bb; box-shadow: 0 0 10px rgba(99, 233, 187, 0.8); }
+      .top-button { padding: 8px 12px; border-radius: 9px; background: #171e27; color: #dce6e9; font-size: 0.7rem; cursor: pointer; transition: background 160ms ease, border-color 160ms ease; }
+      .top-button:hover { border-color: rgba(117, 240, 208, 0.35); background: #1b2730; }
+      .avatar { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; background: linear-gradient(135deg, #233a43, #1a2530); color: #bdcbd0; font-size: 0.63rem; font-weight: 700; }
+      .inspector-toggle { display: none; width: 31px; height: 31px; place-items: center; border: 1px solid var(--line); border-radius: 8px; background: #151b23; cursor: pointer; }
+
+      .app-body { min-height: 0; display: grid; grid-template-columns: 64px minmax(0, 1fr) 272px; }
+
+      .rail {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 9px;
+        padding: 16px 0 12px;
+        border-right: 1px solid var(--line);
+        background: rgba(11, 15, 21, 0.66);
+      }
+
+      .rail-button {
+        position: relative;
+        width: 40px;
+        height: 40px;
+        display: grid;
+        place-items: center;
+        border-color: transparent;
+        border-radius: 11px;
+        background: transparent;
+        color: #77838f;
+        cursor: pointer;
+        transition: color 160ms ease, background 160ms ease, border-color 160ms ease;
+      }
+
+      .rail-button:hover { color: #dce7e8; background: rgba(255, 255, 255, 0.04); }
+      .rail-button.active { border-color: rgba(112, 242, 208, 0.12); background: rgba(73, 201, 172, 0.1); color: #85f4d6; }
+      .rail-button.active::before { position: absolute; left: -13px; width: 2px; height: 18px; border-radius: 0 2px 2px 0; background: #78edcc; box-shadow: 0 0 9px rgba(120, 237, 204, 0.5); content: ""; }
+      .rail-spacer { flex: 1; }
+      .rail-button svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.6; }
+
+      .workbench { min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: 12px; padding: 17px 18px 14px; }
+      .workspace-head { min-height: 45px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+      .workspace-title { margin: 0; color: #e7eef0; font-size: 0.98rem; font-weight: 620; letter-spacing: -0.025em; }
+      .workspace-subtitle { margin: 4px 0 0; color: #76828d; font-size: 0.65rem; }
+      .stage-tools { display: flex; align-items: center; gap: 8px; }
+      .preview-pill { display: flex; align-items: center; gap: 7px; padding: 7px 9px; border: 1px solid rgba(91, 222, 180, 0.16); border-radius: 20px; background: rgba(52, 143, 116, 0.08); color: #85dabc; font-size: 0.58rem; font-weight: 700; letter-spacing: 0.09em; }
+      .preview-pill .live-dot { width: 5px; height: 5px; }
+
+      .toolbar-button {
+        width: 30px;
+        height: 30px;
+        display: grid;
+        place-items: center;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.025);
+        color: #9aa6af;
+        cursor: pointer;
+        transition: all 150ms ease;
+      }
+
+      .toolbar-button:hover { border-color: rgba(255, 255, 255, 0.18); color: #eef4f4; }
+      .toolbar-button svg { width: 13px; height: 13px; fill: currentColor; }
+
+      .scene-stage {
+        position: relative;
+        isolation: isolate;
+        flex: 1;
+        min-height: 190px;
+        overflow: hidden;
+        border: 1px solid rgba(173, 204, 218, 0.13);
+        border-radius: 17px;
+        background:
+          radial-gradient(ellipse at 70% 48%, rgba(25, 123, 108, 0.16), transparent 42%),
+          linear-gradient(145deg, #101720, #0b1119 64%, #10151e);
+        box-shadow: 0 16px 54px rgba(0, 0, 0, 0.24), inset 0 1px rgba(255, 255, 255, 0.025);
+      }
+
+      #glCanvas, #particleCanvas, .scene-grid {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      #glCanvas { z-index: -3; display: block; }
+      #particleCanvas { z-index: -2; display: block; pointer-events: none; transition: opacity 250ms ease; }
+      #particleCanvas.muted { opacity: 0; }
+
+      .scene-grid {
+        z-index: -1;
+        pointer-events: none;
+        background-image: linear-gradient(rgba(206, 227, 239, 0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(206, 227, 239, 0.025) 1px, transparent 1px);
+        background-size: 42px 42px;
+        mask-image: linear-gradient(90deg, rgba(0,0,0,.35), black 65%, rgba(0,0,0,.25));
+      }
+
+      .scene-topline { position: absolute; top: 19px; right: 20px; left: 22px; display: flex; align-items: center; justify-content: space-between; pointer-events: none; }
+      .scene-tag { display: inline-flex; align-items: center; gap: 8px; color: rgba(199, 215, 220, 0.62); font-size: 0.59rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; }
+      .scene-tag .tag-mark { width: 7px; height: 7px; border: 1px solid rgba(119, 244, 208, 0.8); border-radius: 50%; box-shadow: 0 0 10px rgba(119, 244, 208, 0.48); }
+      .coordinates { color: rgba(160, 177, 188, 0.46); font: 0.57rem ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: 0.1em; }
+
+      .scene-copy { position: absolute; z-index: 1; top: 17%; left: 7.5%; width: min(370px, 58%); pointer-events: none; }
+      .scene-copy > * { pointer-events: auto; }
+      .scene-eyebrow { display: flex; align-items: center; gap: 8px; margin: 0 0 16px; color: #7ce8cc; font-size: 0.59rem; font-weight: 720; letter-spacing: 0.17em; text-transform: uppercase; }
+      .scene-eyebrow::before { width: 18px; height: 1px; background: #74ddc1; box-shadow: 0 0 8px rgba(116, 221, 193, 0.6); content: ""; }
+      .scene-copy h1 { max-width: 390px; margin: 0; color: #eff5f4; font-size: clamp(2rem, 4.2vw, 3.35rem); font-weight: 530; letter-spacing: -0.065em; line-height: 1.02; }
+      .scene-copy h1 span { color: #8fdbca; }
+      .scene-description { max-width: 310px; margin: 14px 0 21px; color: rgba(183, 196, 203, 0.69); font-size: clamp(0.7rem, 1.25vw, 0.82rem); line-height: 1.65; }
+
+      #illuminateButton {
+        position: relative;
+        min-width: 202px;
+        height: 51px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        padding: 0 20px;
+        overflow: hidden;
+        border: 1px solid rgba(120, 250, 219, 0.68);
+        border-radius: 999px;
+        background: linear-gradient(110deg, rgba(19, 54, 57, 0.98), rgba(13, 31, 41, 0.98));
+        box-shadow: 0 0 24px rgba(30, 238, 185, 0.19), inset 0 1px rgba(255, 255, 255, 0.12);
+        color: #edfffa;
+        font-size: 0.68rem;
+        font-weight: 730;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease, background 180ms ease;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      #illuminateButton.webgl-ready { border-color: rgba(139, 255, 227, 0.74); background: linear-gradient(110deg, rgba(13, 48, 47, 0.78), rgba(11, 25, 34, 0.76)); box-shadow: inset 0 1px rgba(255, 255, 255, 0.12); }
+      #illuminateButton:hover, #illuminateButton:focus-visible { border-color: #c0ffed; box-shadow: 0 0 28px rgba(28, 255, 198, 0.28), inset 0 1px rgba(255, 255, 255, 0.16); outline: none; }
+      #illuminateButton:focus-visible { outline: 2px solid rgba(115, 242, 205, 0.75); outline-offset: 4px; }
+      #illuminateButton:active { transform: scale(0.98); }
+      #illuminateButton[aria-pressed="true"] { background: linear-gradient(110deg, rgba(23, 92, 75, 0.94), rgba(13, 43, 50, 0.92)); }
+      .button-icon { width: 17px; height: 17px; display: grid; place-items: center; border: 1px solid rgba(189, 255, 235, 0.35); border-radius: 50%; color: #aaffdf; font-size: 0.78rem; line-height: 1; transition: transform 180ms ease, background 180ms ease; }
+      #illuminateButton:hover .button-icon, #illuminateButton[aria-pressed="true"] .button-icon { transform: rotate(45deg); background: rgba(115, 242, 205, 0.12); }
+
+      .scene-metrics { display: flex; gap: 22px; margin-top: 23px; }
+      .metric { display: flex; flex-direction: column; gap: 5px; }
+      .metric-label { color: rgba(150, 164, 174, 0.57); font-size: 0.52rem; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; }
+      .metric-value { color: rgba(225, 235, 236, 0.83); font: 0.69rem ui-monospace, SFMono-Regular, Consolas, monospace; }
+
+      .orb-readout { position: absolute; right: 6%; bottom: 8%; display: flex; align-items: center; gap: 10px; color: rgba(177, 194, 199, 0.6); pointer-events: none; }
+      .readout-line { width: 28px; height: 1px; background: rgba(114, 233, 205, 0.55); box-shadow: 0 0 8px rgba(114, 233, 205, 0.45); }
+      .readout-copy { display: flex; flex-direction: column; gap: 4px; }
+      .readout-copy strong { color: rgba(211, 233, 227, 0.83); font-size: 0.58rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+      .readout-copy span { font: 0.55rem ui-monospace, SFMono-Regular, Consolas, monospace; }
+
+      .inspector {
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 17px;
+        padding: 19px 16px 14px;
+        border-left: 1px solid var(--line);
+        background: linear-gradient(180deg, rgba(17, 22, 29, 0.78), rgba(13, 17, 23, 0.94));
+      }
+
+      .inspector-heading { display: flex; align-items: center; justify-content: space-between; }
+      .inspector-heading h2 { margin: 0; color: #e5ecee; font-size: 0.81rem; font-weight: 640; }
+      .inspector-heading span { color: #66727e; font-size: 0.59rem; }
+      .control-section { padding-top: 15px; border-top: 1px solid var(--line); }
+      .control-title { display: flex; align-items: center; justify-content: space-between; margin: 0 0 11px; color: #95a2ad; font-size: 0.59rem; font-weight: 730; letter-spacing: 0.12em; text-transform: uppercase; }
+      .control-title span { color: #61707a; font-size: 0.55rem; font-weight: 550; letter-spacing: 0.04em; text-transform: none; }
+
+      .preset-list { display: grid; gap: 6px; }
+      .preset {
+        width: 100%;
+        min-height: 48px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 7px 9px;
+        border-color: transparent;
+        border-radius: 9px;
+        background: transparent;
+        text-align: left;
+        cursor: pointer;
+        transition: border-color 150ms ease, background 150ms ease;
+      }
+
+      .preset:hover { background: rgba(255, 255, 255, 0.035); }
+      .preset[aria-pressed="true"] { border-color: rgba(104, 229, 192, 0.18); background: rgba(79, 190, 158, 0.09); }
+      .preset-preview { position: relative; width: 31px; height: 31px; flex: 0 0 31px; overflow: hidden; border: 1px solid rgba(255,255,255,.08); border-radius: 8px; background: #111b22; }
+      .preset-preview::before { position: absolute; top: 6px; left: 8px; width: 14px; height: 14px; border-radius: 50%; background: var(--swatch); box-shadow: 0 0 12px 4px color-mix(in srgb, var(--swatch) 45%, transparent); content: ""; }
+      .preset-copy { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+      .preset-copy strong { color: #dbe4e7; font-size: 0.68rem; font-weight: 630; }
+      .preset-copy small { overflow: hidden; color: #75818d; font-size: 0.56rem; text-overflow: ellipsis; white-space: nowrap; }
+      .preset-check { margin-left: auto; color: #82ebc9; font-size: 0.74rem; opacity: 0; }
+      .preset[aria-pressed="true"] .preset-check { opacity: 1; }
+
+      .range-row { margin-bottom: 14px; }
+      .range-label { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; color: #c5d0d4; font-size: 0.66rem; }
+      .range-label output { color: #92d8c4; font: 0.62rem ui-monospace, SFMono-Regular, Consolas, monospace; }
+      input[type="range"] { width: 100%; height: 4px; display: block; margin: 0; appearance: none; border-radius: 5px; background: linear-gradient(90deg, #67dbba 0%, #67dbba var(--range-progress, 60%), #28323b var(--range-progress, 60%), #28323b 100%); cursor: pointer; }
+      input[type="range"]::-webkit-slider-thumb { width: 12px; height: 12px; appearance: none; border: 2px solid #c4ffeb; border-radius: 50%; background: #4ac5a3; box-shadow: 0 0 8px rgba(103, 219, 186, 0.6); }
+      input[type="range"]::-moz-range-thumb { width: 9px; height: 9px; border: 2px solid #c4ffeb; border-radius: 50%; background: #4ac5a3; box-shadow: 0 0 8px rgba(103, 219, 186, 0.6); }
+
+      .swatches { display: flex; gap: 9px; }
+      .swatch { width: 25px; height: 25px; padding: 0; border: 2px solid transparent; border-radius: 50%; background: var(--swatch); box-shadow: inset 0 0 0 2px #121820; cursor: pointer; transition: transform 140ms ease, border-color 140ms ease; }
+      .swatch:hover { transform: scale(1.12); }
+      .swatch[aria-pressed="true"] { border-color: #e7f4f0; box-shadow: 0 0 12px color-mix(in srgb, var(--swatch) 36%, transparent), inset 0 0 0 2px #121820; }
+
+      .toggle-row { display: flex; align-items: center; justify-content: space-between; min-height: 28px; color: #bdc8ce; font-size: 0.66rem; }
+      .toggle-row + .toggle-row { margin-top: 7px; }
+      .switch { position: relative; width: 30px; height: 17px; flex: 0 0 30px; }
+      .switch input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+      .switch-track { position: absolute; inset: 0; border: 1px solid #3b4650; border-radius: 20px; background: #252d35; cursor: pointer; transition: background 160ms ease, border-color 160ms ease; }
+      .switch-track::before { position: absolute; top: 2px; left: 2px; width: 11px; height: 11px; border-radius: 50%; background: #89949d; content: ""; transition: transform 160ms ease, background 160ms ease; }
+      .switch input:checked + .switch-track { border-color: rgba(102, 228, 188, 0.52); background: rgba(65, 175, 143, 0.34); }
+      .switch input:checked + .switch-track::before { transform: translateX(13px); background: #8cf3cf; box-shadow: 0 0 8px rgba(140, 243, 207, 0.45); }
+      .switch input:focus-visible + .switch-track { outline: 2px solid #a6f7dd; outline-offset: 2px; }
+
+      .inspector-bottom { margin-top: auto; }
+      .reset-button { width: 100%; height: 34px; border-radius: 8px; background: rgba(255, 255, 255, 0.025); color: #9ba7ae; font-size: 0.64rem; cursor: pointer; transition: background 140ms ease, color 140ms ease; }
+      .reset-button:hover { background: rgba(255,255,255,.06); color: #e3eeee; }
+
+      .statusbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 17px; border-top: 1px solid var(--line); background: #0c1016; color: #65717c; font: 0.56rem ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: 0.025em; }
+      .status-left, .status-right { display: flex; align-items: center; gap: 15px; }
+      .status-ready { display: flex; align-items: center; gap: 6px; color: #79cdb0; }
+      .status-ready .live-dot { width: 5px; height: 5px; }
+      .toast { position: fixed; z-index: 20; right: 24px; bottom: 45px; padding: 10px 14px; transform: translateY(8px); border: 1px solid rgba(119, 237, 204, 0.22); border-radius: 9px; background: rgba(18, 29, 34, 0.96); box-shadow: 0 12px 35px rgba(0,0,0,.32); color: #c9f6e8; font-size: 0.72rem; opacity: 0; pointer-events: none; transition: opacity 180ms ease, transform 180ms ease; }
+      .toast.visible { transform: translateY(0); opacity: 1; }
+
+      @media (max-width: 820px) {
+        .app-body { grid-template-columns: 56px minmax(0, 1fr); }
+        .rail { padding-top: 12px; }
+        .inspector { position: absolute; z-index: 4; top: 64px; right: 0; bottom: 28px; width: min(272px, 82vw); display: none; border-left: 1px solid var(--line); box-shadow: -18px 0 48px rgba(0,0,0,.42); }
+        .app-shell.inspector-open .inspector { display: flex; }
+        .inspector-toggle { display: grid; }
+        .brand { width: 160px; min-width: 160px; }
+        .scene-copy { width: min(355px, 66%); left: 6%; }
+        .scene-copy h1 { font-size: clamp(2rem, 5.4vw, 3.1rem); }
+      }
+
+      @media (max-width: 560px) {
+        .topbar { gap: 10px; padding: 0 12px; }
+        .brand { width: auto; min-width: 0; }
+        .brand-caption, .breadcrumb, .gpu-status, .avatar { display: none; }
+        .top-actions { margin-left: auto; }
+        .top-button { padding: 7px 9px; font-size: 0.61rem; }
+        .workbench { gap: 8px; padding: 11px 10px 10px; }
+        .workspace-head { min-height: 39px; }
+        .workspace-title { font-size: 0.85rem; }
+        .workspace-subtitle { font-size: 0.58rem; }
+        .scene-stage { min-height: 170px; border-radius: 13px; }
+        .scene-topline { top: 13px; left: 14px; right: 14px; }
+        .scene-copy { top: 19%; left: 6%; width: 68%; }
+        .scene-copy h1 { font-size: clamp(1.75rem, 7.5vw, 2.45rem); }
+        .scene-eyebrow { margin-bottom: 11px; font-size: 0.5rem; }
+        .scene-description { max-width: 235px; margin: 10px 0 15px; font-size: 0.66rem; }
+        #illuminateButton { min-width: 180px; height: 44px; font-size: 0.6rem; }
+        .scene-metrics { gap: 14px; margin-top: 16px; }
+        .metric-label { font-size: 0.46rem; }
+        .metric-value { font-size: 0.6rem; }
+        .orb-readout { right: 4%; bottom: 6%; gap: 6px; }
+        .readout-line { width: 15px; }
+        .readout-copy strong { font-size: 0.49rem; }
+        .readout-copy span { font-size: 0.47rem; }
+        .coordinates { font-size: 0.48rem; }
+        .statusbar { padding: 0 9px; font-size: 0.49rem; }
+        .status-left, .status-right { gap: 8px; }
+      }
+
+      @media (max-height: 520px) {
+        .app-shell { grid-template-rows: 54px minmax(0, 1fr) 24px; }
+        .topbar { padding-right: 15px; padding-left: 15px; }
+        .workbench { gap: 7px; padding-top: 8px; padding-bottom: 7px; }
+        .workspace-head { min-height: 37px; }
+        .inspector { padding-top: 12px; gap: 10px; }
+        .control-section { padding-top: 10px; }
+        .inspector { top: 54px; bottom: 24px; }
+        .scene-copy { top: 12%; }
+        .scene-description { margin-top: 9px; margin-bottom: 12px; }
+        .scene-metrics { margin-top: 13px; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+      }
+    </style>
   </head>
   <body>
-    <main>
-      <h1>mygoapp</h1>
-      <p class="muted">Go ↔ TypeScript, fully typed.</p>
-      <form id="greet">
-        <input id="name" placeholder="Your name" autocomplete="off" autofocus />
-        <button type="submit">Greet</button>
-      </form>
-      <p id="greeting" class="card"></p>
-      <p class="muted"><span id="info"></span> · <span id="clock">--:--:--</span></p>
-    </main>
-    <script type="module" src="./src/main.ts"></script>
+    <div class="app-shell" id="appShell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="Lumen Light Studio home">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span><span class="brand-name">LUMEN</span><span class="brand-caption">LIGHT STUDIO</span></span>
+        </a>
+        <div class="breadcrumb"><span>Workspace</span><span class="slash">/</span><strong>Glow study</strong></div>
+        <div class="top-actions">
+          <div class="gpu-status" id="gpuStatus"><span class="live-dot"></span><span>WEBGL READY</span></div>
+          <button class="inspector-toggle" id="inspectorToggle" type="button" aria-label="Toggle inspector" aria-expanded="false">☷</button>
+          <button class="top-button" id="exportButton" type="button">Export scene</button>
+          <div class="avatar" aria-label="User profile">BL</div>
+        </div>
+      </header>
+
+      <div class="app-body">
+        <nav class="rail" aria-label="Workspace sections">
+          <button class="rail-button active" type="button" aria-label="Scene" title="Scene">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 20.5 8.3v7.4L12 20.5l-8.5-4.8V8.3L12 3.5Z"/><path d="m3.8 8.4 8.2 4.7 8.2-4.7M12 13.1v7"/></svg>
+          </button>
+          <button class="rail-button" type="button" aria-label="Effects" title="Effects">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2.8 1.8 6.5 6.4 2.1-6.4 1.8-1.8 6.5-2-6.5-6.3-1.8 6.3-2.1L12 2.8Z"/><path d="m19.4 16 .8 2.3 2.1.7-2.1.7-.8 2.2-.7-2.2-2.2-.7 2.2-.7.7-2.3Z"/></svg>
+          </button>
+          <button class="rail-button" type="button" aria-label="Layers" title="Layers">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/></svg>
+          </button>
+          <div class="rail-spacer"></div>
+          <button class="rail-button" type="button" aria-label="Help" title="Help">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.4 2.4 0 1 1 4.2 1.6c-1.1 1.1-1.9 1.4-1.9 3M12 17.2h.01"/></svg>
+          </button>
+        </nav>
+
+        <main class="workbench">
+          <div class="workspace-head">
+            <div><h2 class="workspace-title">Glow study</h2><p class="workspace-subtitle">A live playground for light and motion</p></div>
+            <div class="stage-tools">
+              <span class="preview-pill"><span class="live-dot"></span>LIVE PREVIEW</span>
+              <button class="toolbar-button" id="pauseButton" type="button" aria-label="Pause animation" title="Pause animation">
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 3h3v10H4zM9 3h3v10H9z"/></svg>
+              </button>
+              <button class="toolbar-button" id="resetTopButton" type="button" aria-label="Reset scene" title="Reset scene">
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.2a5.8 5.8 0 1 1-5.2 3.2H1.2l2.5-2.6 2.4 2.6H4.6A4 4 0 1 0 8 4V2.2Z"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <section class="scene-stage" id="sceneStage" aria-label="Interactive WebGL light scene">
+            <canvas id="glCanvas" aria-hidden="true"></canvas>
+            <canvas id="particleCanvas" aria-hidden="true"></canvas>
+            <div class="scene-grid" aria-hidden="true"></div>
+            <div class="scene-topline">
+              <span class="scene-tag"><span class="tag-mark"></span><span id="sceneTag">Aurora field / 01</span></span>
+              <span class="coordinates" id="coordinates">X 068 · Y 052</span>
+            </div>
+
+            <div class="scene-copy">
+              <p class="scene-eyebrow">REALTIME LIGHT ENGINE</p>
+              <h1>Shape light.<br /><span>Feel the energy.</span></h1>
+              <p class="scene-description">A living field of color, shader-drawn and tuned by you. Move your pointer through the scene.</p>
+              <button id="illuminateButton" type="button" aria-pressed="false">
+                <span id="illuminateLabel">Ignite light field</span>
+                <span class="button-icon" aria-hidden="true">✳</span>
+              </button>
+              <div class="scene-metrics" aria-label="Scene metrics">
+                <div class="metric"><span class="metric-label">Renderer</span><span class="metric-value" id="rendererMetric">WebGL / 1.0</span></div>
+                <div class="metric"><span class="metric-label">Particles</span><span class="metric-value" id="particleMetric">096 active</span></div>
+                <div class="metric"><span class="metric-label">Frame rate</span><span class="metric-value" id="sceneFps">60 FPS</span></div>
+              </div>
+            </div>
+
+            <div class="orb-readout" aria-hidden="true">
+              <span class="readout-line"></span>
+              <span class="readout-copy"><strong>Living core</strong><span>FIELD 01 / INTERACTIVE</span></span>
+            </div>
+          </section>
+        </main>
+
+        <aside class="inspector" aria-label="Scene inspector">
+          <div class="inspector-heading"><h2>Inspector</h2><span>SCENE 01</span></div>
+
+          <section class="control-section" aria-labelledby="presetTitle">
+            <h3 class="control-title" id="presetTitle">Light preset <span>3 styles</span></h3>
+            <div class="preset-list">
+              <button class="preset" type="button" data-mode="0" aria-pressed="true">
+                <span class="preset-preview" style="--swatch:#70f2d0"></span>
+                <span class="preset-copy"><strong>Aurora</strong><small>Soft drifting waves</small></span><span class="preset-check">✓</span>
+              </button>
+              <button class="preset" type="button" data-mode="1" aria-pressed="false">
+                <span class="preset-preview" style="--swatch:#89a7ff"></span>
+                <span class="preset-copy"><strong>Pulse</strong><small>Radiant energy rings</small></span><span class="preset-check">✓</span>
+              </button>
+              <button class="preset" type="button" data-mode="2" aria-pressed="false">
+                <span class="preset-preview" style="--swatch:#f6bd84"></span>
+                <span class="preset-copy"><strong>Orbit</strong><small>Slow celestial drift</small></span><span class="preset-check">✓</span>
+              </button>
+            </div>
+          </section>
+
+          <section class="control-section" aria-labelledby="intensityTitle">
+            <h3 class="control-title" id="intensityTitle">Field controls <span>LIVE</span></h3>
+            <div class="range-row">
+              <label class="range-label" for="intensity"><span>Glow intensity</span><output id="intensityValue" for="intensity">76%</output></label>
+              <input id="intensity" type="range" min="10" max="100" value="76" />
+            </div>
+            <div class="range-row">
+              <label class="range-label" for="motion"><span>Motion</span><output id="motionValue" for="motion">58%</output></label>
+              <input id="motion" type="range" min="0" max="100" value="58" />
+            </div>
+          </section>
+
+          <section class="control-section" aria-labelledby="colorTitle">
+            <h3 class="control-title" id="colorTitle">Colorway <span id="colorName">Mint signal</span></h3>
+            <div class="swatches" role="group" aria-label="Choose light color">
+              <button class="swatch" type="button" style="--swatch:#70f2d0" data-color="#70f2d0" data-name="Mint signal" aria-label="Mint signal" aria-pressed="true"></button>
+              <button class="swatch" type="button" style="--swatch:#9a9cff" data-color="#9a9cff" data-name="Violet haze" aria-label="Violet haze" aria-pressed="false"></button>
+              <button class="swatch" type="button" style="--swatch:#ffbd87" data-color="#ffbd87" data-name="Solar amber" aria-label="Solar amber" aria-pressed="false"></button>
+              <button class="swatch" type="button" style="--swatch:#85baff" data-color="#85baff" data-name="Glacier blue" aria-label="Glacier blue" aria-pressed="false"></button>
+            </div>
+          </section>
+
+          <section class="control-section" aria-labelledby="motionTitle">
+            <h3 class="control-title" id="motionTitle">Scene effects <span>2 enabled</span></h3>
+            <div class="toggle-row"><label for="particlesToggle">Ambient particles</label><label class="switch"><input id="particlesToggle" type="checkbox" checked /><span class="switch-track"></span></label></div>
+            <div class="toggle-row"><label for="cursorToggle">Cursor response</label><label class="switch"><input id="cursorToggle" type="checkbox" checked /><span class="switch-track"></span></label></div>
+          </section>
+
+          <div class="inspector-bottom"><button class="reset-button" id="resetButton" type="button">↺ &nbsp; Reset scene</button></div>
+        </aside>
+      </div>
+
+      <footer class="statusbar">
+        <div class="status-left"><span class="status-ready" id="statusText"><span class="live-dot"></span>ALL SYSTEMS NOMINAL</span><span>GPU · ACCELERATED</span></div>
+        <div class="status-right"><span id="resolutionText">0 × 0</span><span>COLOR · LINEAR</span><span>V 1.4.0</span></div>
+      </footer>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script>
+      const appShell = document.querySelector("#appShell");
+      const stage = document.querySelector("#sceneStage");
+      const glCanvas = document.querySelector("#glCanvas");
+      const particleCanvas = document.querySelector("#particleCanvas");
+      const glowButton = document.querySelector("#illuminateButton");
+      const glowLabel = document.querySelector("#illuminateLabel");
+      const gl = glCanvas.getContext("webgl", { alpha: false, antialias: true, preserveDrawingBuffer: true });
+      const particleContext = particleCanvas.getContext("2d");
+
+      const state = {
+        color: [0.44, 0.95, 0.82],
+        intensity: 0.76,
+        motion: 0.58,
+        mode: 0,
+        particles: true,
+        cursorResponse: true,
+        paused: false,
+        locked: false,
+        hovered: false,
+        focused: false,
+        hoverValue: 0.18,
+        targetGlow: 0.18,
+        pointer: { x: 0, y: 0, active: false },
+        width: 0,
+        height: 0,
+        dpr: 1,
+        elapsed: 0,
+        lastFrame: 0,
+        frameId: 0,
+        dots: [],
+      };
+
+      const defaults = { color: [0.44, 0.95, 0.82], mode: 0, intensity: 76, motion: 58 };
+      const presetNames = ["Aurora field / 01", "Pulse field / 02", "Orbit field / 03"];
+      let toastTimer = 0;
+
+      function showToast(message) {
+        const toast = document.querySelector("#toast");
+        toast.textContent = message;
+        toast.classList.add("visible");
+        window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(() => toast.classList.remove("visible"), 2200);
+      }
+
+      function hexToRgb(hex) {
+        const value = hex.replace("#", "");
+        return [0, 2, 4].map((index) => parseInt(value.slice(index, index + 2), 16) / 255);
+      }
+
+      function updateTargetGlow() {
+        state.targetGlow = state.locked || state.hovered || state.focused ? 1 : 0.18;
+        state.drawOnce?.();
+      }
+
+      function setSliderFill(input) {
+        const percent = ((Number(input.value) - Number(input.min)) / (Number(input.max) - Number(input.min))) * 100;
+        input.style.setProperty("--range-progress", `${percent}%`);
+      }
+
+      function compileShader(type, source) {
+        const shader = gl.createShader(type);
+        if (!shader) throw new Error("Could not create WebGL shader.");
+        gl.shaderSource(shader, source);
+        gl.compileShader(shader);
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+          const message = gl.getShaderInfoLog(shader) || "Unknown shader compilation error.";
+          gl.deleteShader(shader);
+          throw new Error(message);
+        }
+        return shader;
+      }
+
+      function startWebGL() {
+        if (!gl) {
+          document.querySelector("#gpuStatus span:last-child").textContent = "2D FALLBACK";
+          document.querySelector("#statusText").lastChild.textContent = " WEBGL UNAVAILABLE · FALLBACK ACTIVE";
+          return;
+        }
+
+        const vertexSource = `
+          attribute vec2 aPosition;
+          varying vec2 vUv;
+          void main() {
+            vUv = aPosition * 0.5 + 0.5;
+            gl_Position = vec4(aPosition, 0.0, 1.0);
+          }
+        `;
+
+        const fragmentSource = `
+          precision highp float;
+          varying vec2 vUv;
+          uniform vec2 uResolution;
+          uniform vec2 uPointer;
+          uniform vec4 uButton;
+          uniform vec3 uTint;
+          uniform float uTime;
+          uniform float uIntensity;
+          uniform float uMotion;
+          uniform float uMode;
+          uniform float uButtonGlow;
+          uniform float uPointerStrength;
+
+          float roundedBoxSDF(vec2 p, vec2 halfSize, float radius) {
+            vec2 q = abs(p) - halfSize + radius;
+            return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - radius;
+          }
+
+          void main() {
+            vec2 pixel = gl_FragCoord.xy;
+            vec2 uv = pixel / uResolution;
+            float scale = min(uResolution.x, uResolution.y);
+            vec2 p = (pixel - uResolution * 0.5) / scale;
+            float t = uTime * uMotion;
+
+            vec3 color = mix(vec3(0.016, 0.023, 0.034), vec3(0.031, 0.041, 0.054), uv.y);
+            float vignette = 1.0 - smoothstep(0.3, 1.45, length(p));
+            color *= 0.77 + vignette * 0.23;
+
+            float bend = sin(p.x * 3.2 + t * 0.45 + sin(p.y * 2.8 - t * 0.24) * 0.7) * 0.16;
+            float auroraA = exp(-pow((p.y - bend - 0.12), 2.0) / 0.025);
+            float auroraB = exp(-pow((p.y + bend * 0.62 + 0.28), 2.0) / 0.042);
+            float aurora = auroraA * 0.62 + auroraB * 0.38;
+
+            vec2 orbCenter = vec2(uResolution.x * 0.72, uResolution.y * 0.51);
+            vec2 orbDelta = (pixel - orbCenter) / scale;
+            float orbDistance = length(orbDelta);
+            float corona = exp(-orbDistance * 3.8);
+            float core = exp(-orbDistance * 25.0);
+            float shimmer = 0.5 + 0.5 * sin(orbDistance * 52.0 - t * 2.1);
+            float breathing = 0.5 + 0.5 * sin(t * 1.35);
+            float ringRadius = 0.24 + 0.012 * sin(t * 0.8);
+            float orbitRing = exp(-abs(orbDistance - ringRadius) * 48.0);
+            float pulseRing = exp(-abs(orbDistance - (0.2 + 0.06 * breathing)) * 42.0);
+            float modeAurora = 1.0 - step(0.5, uMode);
+            float modePulse = step(0.5, uMode) * (1.0 - step(1.5, uMode));
+            float modeOrbit = step(1.5, uMode);
+            float field = aurora * modeAurora + pulseRing * modePulse + orbitRing * modeOrbit;
+
+            color += uTint * (aurora * (0.035 + 0.075 * uIntensity));
+            color += uTint * corona * (0.10 + 0.19 * uIntensity);
+            color += uTint * core * (0.11 + 0.18 * uIntensity);
+            color += uTint * field * (0.12 + 0.22 * uIntensity);
+            color += uTint * orbitRing * shimmer * 0.045 * (0.35 + uIntensity);
+
+            vec2 pointerDelta = (pixel - uPointer) / scale;
+            float pointerAura = exp(-length(pointerDelta) * 4.4) * uPointerStrength;
+            color += uTint * pointerAura * 0.14;
+
+            vec2 buttonDelta = pixel - uButton.xy;
+            float buttonDistance = roundedBoxSDF(buttonDelta, uButton.zw, uButton.w * 0.48);
+            float buttonBody = 1.0 - smoothstep(-1.5, 1.5, buttonDistance);
+            float buttonHalo = exp(-max(buttonDistance, 0.0) / (scale * 0.055)) * (0.07 + 0.92 * uButtonGlow) * uIntensity;
+            float buttonRim = exp(-abs(buttonDistance) / 2.2) * (0.16 + 0.68 * uButtonGlow);
+            color = mix(color, vec3(0.016, 0.047, 0.055), buttonBody * 0.76);
+            color += uTint * buttonHalo * 0.78;
+            color += uTint * buttonRim * 0.2;
+
+            float grain = fract(sin(dot(uv + uTime * 0.0001, vec2(12.9898, 78.233))) * 43758.5453);
+            color += (grain - 0.5) * 0.006;
+            gl_FragColor = vec4(color, 1.0);
+          }
+        `;
+
+        try {
+          const vertexShader = compileShader(gl.VERTEX_SHADER, vertexSource);
+          const fragmentShader = compileShader(gl.FRAGMENT_SHADER, fragmentSource);
+          const program = gl.createProgram();
+          if (!program) throw new Error("Could not create WebGL program.");
+          gl.attachShader(program, vertexShader);
+          gl.attachShader(program, fragmentShader);
+          gl.linkProgram(program);
+          if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(program) || "Could not link WebGL program.");
+          gl.useProgram(program);
+
+          const buffer = gl.createBuffer();
+          gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+          gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
+          const position = gl.getAttribLocation(program, "aPosition");
+          gl.enableVertexAttribArray(position);
+          gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+
+          const uniform = {
+            resolution: gl.getUniformLocation(program, "uResolution"),
+            pointer: gl.getUniformLocation(program, "uPointer"),
+            button: gl.getUniformLocation(program, "uButton"),
+            tint: gl.getUniformLocation(program, "uTint"),
+            time: gl.getUniformLocation(program, "uTime"),
+            intensity: gl.getUniformLocation(program, "uIntensity"),
+            motion: gl.getUniformLocation(program, "uMotion"),
+            mode: gl.getUniformLocation(program, "uMode"),
+            buttonGlow: gl.getUniformLocation(program, "uButtonGlow"),
+            pointerStrength: gl.getUniformLocation(program, "uPointerStrength"),
+          };
+
+          function updateButtonBounds() {
+            const canvasRect = glCanvas.getBoundingClientRect();
+            const buttonRect = glowButton.getBoundingClientRect();
+            gl.uniform4f(
+              uniform.button,
+              (buttonRect.left - canvasRect.left + buttonRect.width / 2) * state.dpr,
+              glCanvas.height - (buttonRect.top - canvasRect.top + buttonRect.height / 2) * state.dpr,
+              buttonRect.width * state.dpr / 2,
+              buttonRect.height * state.dpr / 2,
+            );
+          }
+
+          function resizeScene() {
+            const rect = stage.getBoundingClientRect();
+            state.dpr = Math.min(window.devicePixelRatio || 1, 2);
+            state.width = rect.width;
+            state.height = rect.height;
+            glCanvas.width = Math.max(1, Math.round(rect.width * state.dpr));
+            glCanvas.height = Math.max(1, Math.round(rect.height * state.dpr));
+            particleCanvas.width = glCanvas.width;
+            particleCanvas.height = glCanvas.height;
+            gl.viewport(0, 0, glCanvas.width, glCanvas.height);
+            gl.uniform2f(uniform.resolution, glCanvas.width, glCanvas.height);
+            particleContext.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+            makeParticles();
+            updateButtonBounds();
+            document.querySelector("#resolutionText").textContent = `${Math.round(rect.width)} × ${Math.round(rect.height)}`;
+            drawOnce();
+          }
+
+          function drawParticles(delta) {
+            const ctx = particleContext;
+            const width = state.width;
+            const height = state.height;
+            ctx.clearRect(0, 0, width, height);
+            if (!state.particles) return;
+            const [red, green, blue] = state.color.map((value) => Math.round(value * 255));
+            ctx.globalCompositeOperation = "lighter";
+
+            for (const particle of state.dots) {
+              particle.x += particle.vx * delta * state.motion * 1.65;
+              particle.y += particle.vy * delta * state.motion * 1.65;
+              if (particle.x < -8) particle.x = width + 8;
+              if (particle.x > width + 8) particle.x = -8;
+              if (particle.y < -8) particle.y = height + 8;
+              if (particle.y > height + 8) particle.y = -8;
+
+              if (state.pointer.active && state.cursorResponse) {
+                const dx = particle.x - state.pointer.x;
+                const dy = particle.y - state.pointer.y;
+                const distance = Math.hypot(dx, dy);
+                if (distance > 0 && distance < 92) {
+                  const force = (1 - distance / 92) * delta * 18 * state.motion;
+                  particle.x += (dx / distance) * force;
+                  particle.y += (dy / distance) * force;
+                }
+              }
+
+              particle.phase += delta * state.motion;
+              particle.alpha = 0.18 + (0.5 + 0.5 * Math.sin(particle.phase)) * 0.48;
+            }
+
+            for (let i = 0; i < state.dots.length; i += 1) {
+              const first = state.dots[i];
+              for (let j = i + 1; j < state.dots.length; j += 1) {
+                const second = state.dots[j];
+                const distance = Math.hypot(first.x - second.x, first.y - second.y);
+                if (distance < 76) {
+                  ctx.strokeStyle = `rgba(${red}, ${green}, ${blue}, ${(1 - distance / 76) * 0.12})`;
+                  ctx.lineWidth = 0.7;
+                  ctx.beginPath();
+                  ctx.moveTo(first.x, first.y);
+                  ctx.lineTo(second.x, second.y);
+                  ctx.stroke();
+                }
+              }
+            }
+
+            for (const particle of state.dots) {
+              ctx.fillStyle = `rgba(${red}, ${green}, ${blue}, ${particle.alpha})`;
+              ctx.beginPath();
+              ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+              ctx.fill();
+            }
+            ctx.globalCompositeOperation = "source-over";
+          }
+
+          function drawFrame(timestamp) {
+            state.frameId = 0;
+            const delta = state.lastFrame ? Math.min((timestamp - state.lastFrame) / 1000, 0.05) : 0;
+            state.lastFrame = timestamp;
+            if (!state.paused) state.elapsed += delta;
+            state.hoverValue += ((state.targetGlow ?? 0.18) - state.hoverValue) * 0.11;
+            const targetPointer = state.pointer.active && state.cursorResponse ? 1 : 0;
+            state.pointerGlow = (state.pointerGlow || 0) + (targetPointer - (state.pointerGlow || 0)) * 0.08;
+
+            gl.uniform2f(uniform.pointer, state.pointer.x * state.dpr, glCanvas.height - state.pointer.y * state.dpr);
+            gl.uniform3f(uniform.tint, ...state.color);
+            gl.uniform1f(uniform.time, state.elapsed);
+            gl.uniform1f(uniform.intensity, state.intensity);
+            gl.uniform1f(uniform.motion, state.motion);
+            gl.uniform1f(uniform.mode, state.mode);
+            gl.uniform1f(uniform.buttonGlow, state.hoverValue);
+            gl.uniform1f(uniform.pointerStrength, state.pointerGlow || 0);
+            gl.clearColor(0.015, 0.02, 0.03, 1);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+            drawParticles(delta);
+            countFrames(timestamp);
+
+            if (!state.paused) state.frameId = requestAnimationFrame(drawFrame);
+          }
+
+          function countFrames(timestamp) {
+            state.frameCount = (state.frameCount || 0) + 1;
+            if (!state.fpsStamp) state.fpsStamp = timestamp;
+            const elapsed = timestamp - state.fpsStamp;
+            if (elapsed >= 900) {
+              const fps = Math.round((state.frameCount * 1000) / elapsed);
+              document.querySelector("#sceneFps").textContent = `${fps} FPS`;
+              state.frameCount = 0;
+              state.fpsStamp = timestamp;
+            }
+          }
+
+          function drawOnce() {
+            if (state.paused && !state.frameId) state.frameId = requestAnimationFrame(drawFrame);
+          }
+
+          state.drawFrame = drawFrame;
+          state.updateButtonBounds = updateButtonBounds;
+          state.drawOnce = drawOnce;
+          state.resizeScene = resizeScene;
+          glowButton.classList.add("webgl-ready");
+          resizeScene();
+          new ResizeObserver(resizeScene).observe(stage);
+          new ResizeObserver(updateButtonBounds).observe(glowButton);
+          window.addEventListener("resize", resizeScene);
+          state.frameId = requestAnimationFrame(drawFrame);
+          document.querySelector("#rendererMetric").textContent = "WebGL / 1.0";
+        } catch (error) {
+          glowButton.classList.remove("webgl-ready");
+          document.querySelector("#gpuStatus span:last-child").textContent = "WEBGL ERROR";
+          document.querySelector("#rendererMetric").textContent = "Canvas fallback";
+          document.querySelector("#statusText").lastChild.textContent = " WEBGL ERROR · CANVAS FALLBACK ACTIVE";
+          console.error("Lumen WebGL scene could not be initialized:", error);
+        }
+      }
+
+      function makeParticles() {
+        const count = Math.min(120, Math.max(64, Math.round((state.width * state.height) / 3700)));
+        state.dots = Array.from({ length: count }, () => ({
+          x: Math.random() * state.width,
+          y: Math.random() * state.height,
+          vx: (Math.random() - 0.5) * 10,
+          vy: (Math.random() - 0.5) * 8,
+          radius: 0.55 + Math.random() * 1.35,
+          alpha: 0.3,
+          phase: Math.random() * Math.PI * 2,
+        }));
+        document.querySelector("#particleMetric").textContent = `${String(count).padStart(3, "0")} active`;
+      }
+
+      function updateScene() {
+        document.querySelector("#sceneTag").textContent = presetNames[state.mode];
+        document.querySelector("#colorName").textContent = document.querySelector(`.swatch[aria-pressed="true"]`)?.dataset.name || "Custom color";
+        document.querySelector("#particleCanvas").classList.toggle("muted", !state.particles);
+        if (state.drawOnce) state.drawOnce();
+      }
+
+      function setMode(mode) {
+        state.mode = Number(mode);
+        document.querySelectorAll(".preset").forEach((button) => button.setAttribute("aria-pressed", String(Number(button.dataset.mode) === state.mode)));
+        updateScene();
+      }
+
+      function resetScene() {
+        state.color = [...defaults.color];
+        state.mode = defaults.mode;
+        state.intensity = defaults.intensity / 100;
+        state.motion = defaults.motion / 100;
+        state.locked = false;
+        state.hovered = false;
+        state.focused = document.activeElement === glowButton;
+        state.paused = false;
+        state.particles = true;
+        state.cursorResponse = true;
+        state.pointer.active = false;
+        state.pointerGlow = 0;
+        state.targetGlow = state.focused ? 1 : 0.18;
+        glowButton.setAttribute("aria-pressed", "false");
+        glowLabel.textContent = "Ignite light field";
+        document.querySelector("#intensity").value = defaults.intensity;
+        document.querySelector("#motion").value = defaults.motion;
+        document.querySelector("#intensityValue").textContent = `${defaults.intensity}%`;
+        document.querySelector("#motionValue").textContent = `${defaults.motion}%`;
+        document.querySelector("#particlesToggle").checked = true;
+        document.querySelector("#cursorToggle").checked = true;
+        document.querySelectorAll(".swatch").forEach((swatch, index) => swatch.setAttribute("aria-pressed", String(index === 0)));
+        setSliderFill(document.querySelector("#intensity"));
+        setSliderFill(document.querySelector("#motion"));
+        document.querySelector("#pauseButton").innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 3h3v10H4zM9 3h3v10H9z"/></svg>';
+        document.querySelector("#pauseButton").setAttribute("aria-label", "Pause animation");
+        if (state.frameId) cancelAnimationFrame(state.frameId);
+        state.frameId = 0;
+        state.lastFrame = 0;
+        if (state.resizeScene) state.resizeScene();
+        setMode(defaults.mode);
+        if (state.drawFrame) state.frameId = requestAnimationFrame(state.drawFrame);
+      }
+
+      startWebGL();
+      setSliderFill(document.querySelector("#intensity"));
+      setSliderFill(document.querySelector("#motion"));
+
+      glowButton.addEventListener("pointerenter", () => { state.hovered = true; updateTargetGlow(); });
+      glowButton.addEventListener("pointerleave", () => { state.hovered = false; updateTargetGlow(); });
+      glowButton.addEventListener("focus", () => { state.focused = true; updateTargetGlow(); });
+      glowButton.addEventListener("blur", () => { state.focused = false; updateTargetGlow(); });
+      glowButton.addEventListener("click", () => {
+        state.locked = !state.locked;
+        glowButton.setAttribute("aria-pressed", String(state.locked));
+        glowLabel.textContent = state.locked ? "Light field active" : "Ignite light field";
+        updateTargetGlow();
+        if (state.drawOnce) state.drawOnce();
+      });
+
+      document.querySelectorAll(".preset").forEach((button) => button.addEventListener("click", () => setMode(button.dataset.mode)));
+      document.querySelectorAll(".swatch").forEach((button) => button.addEventListener("click", () => {
+        state.color = hexToRgb(button.dataset.color);
+        document.querySelectorAll(".swatch").forEach((swatch) => swatch.setAttribute("aria-pressed", String(swatch === button)));
+        updateScene();
+      }));
+
+      document.querySelector("#intensity").addEventListener("input", (event) => {
+        state.intensity = Number(event.currentTarget.value) / 100;
+        document.querySelector("#intensityValue").textContent = `${event.currentTarget.value}%`;
+        setSliderFill(event.currentTarget);
+        if (state.drawOnce) state.drawOnce();
+      });
+
+      document.querySelector("#motion").addEventListener("input", (event) => {
+        state.motion = Number(event.currentTarget.value) / 100;
+        document.querySelector("#motionValue").textContent = `${event.currentTarget.value}%`;
+        setSliderFill(event.currentTarget);
+        if (state.drawOnce) state.drawOnce();
+      });
+
+      document.querySelector("#particlesToggle").addEventListener("change", (event) => { state.particles = event.currentTarget.checked; updateScene(); });
+      document.querySelector("#cursorToggle").addEventListener("change", (event) => { state.cursorResponse = event.currentTarget.checked; if (state.drawOnce) state.drawOnce(); });
+
+      document.querySelector("#pauseButton").addEventListener("click", (event) => {
+        state.paused = !state.paused;
+        const button = event.currentTarget;
+        button.setAttribute("aria-label", state.paused ? "Resume animation" : "Pause animation");
+        button.title = state.paused ? "Resume animation" : "Pause animation";
+        button.innerHTML = state.paused
+          ? '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.2 13 8l-8 4.8V3.2Z"/></svg>'
+          : '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 3h3v10H4zM9 3h3v10H9z"/></svg>';
+        if (state.frameId) cancelAnimationFrame(state.frameId);
+        state.frameId = 0;
+        if (state.paused) state.drawOnce?.();
+        else if (state.drawFrame) state.frameId = requestAnimationFrame(state.drawFrame);
+      });
+
+      document.querySelector("#resetButton").addEventListener("click", resetScene);
+      document.querySelector("#resetTopButton").addEventListener("click", resetScene);
+
+      document.querySelector("#inspectorToggle").addEventListener("click", (event) => {
+        const open = appShell.classList.toggle("inspector-open");
+        event.currentTarget.setAttribute("aria-expanded", String(open));
+      });
+
+      stage.addEventListener("pointermove", (event) => {
+        const rect = stage.getBoundingClientRect();
+        state.pointer.x = event.clientX - rect.left;
+        state.pointer.y = event.clientY - rect.top;
+        state.pointer.active = true;
+        document.querySelector("#coordinates").textContent = `X ${String(Math.round((state.pointer.x / rect.width) * 100)).padStart(3, "0")} · Y ${String(Math.round((state.pointer.y / rect.height) * 100)).padStart(3, "0")}`;
+        state.drawOnce?.();
+      });
+      stage.addEventListener("pointerleave", () => { state.pointer.active = false; state.drawOnce?.(); });
+
+      document.querySelector("#exportButton").addEventListener("click", () => {
+        if (!gl) { showToast("WebGL is unavailable for scene export."); return; }
+        const output = document.createElement("canvas");
+        output.width = glCanvas.width;
+        output.height = glCanvas.height;
+        const context = output.getContext("2d");
+        context.drawImage(glCanvas, 0, 0);
+        if (state.particles) context.drawImage(particleCanvas, 0, 0);
+        output.toBlob((blob) => {
+          if (!blob) { showToast("Could not export this scene."); return; }
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = "lumen-light-scene.png";
+          link.click();
+          window.setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+          showToast("Scene exported as PNG.");
+        }, "image/png");
+      });
+
+      document.querySelectorAll(".rail-button").forEach((button) => button.addEventListener("click", () => {
+        if (button.getAttribute("aria-label") === "Help") showToast("Choose a preset, tune the field, and export your scene.");
+        else if (!button.classList.contains("active")) showToast(`${button.getAttribute("aria-label")} tools are ready to explore.`);
+        document.querySelectorAll(".rail-button").forEach((item) => item.classList.toggle("active", item === button && item.getAttribute("aria-label") !== "Help"));
+      }));
+
+      resetScene();
+    </script>
   </body>
 </html>

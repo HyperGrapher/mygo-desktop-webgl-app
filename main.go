@@ -41,10 +41,10 @@ func main() {
 	mygo.App.WhenReady(func() {
 		win := mygo.NewWindow(mygo.WindowOptions{
 			Title:           "mygoapp",
-			Width:           960,
-			Height:          640,
-			MinWidth:        480,
-			MinHeight:       360,
+			Width:           1280,
+			Height:          720,
+			MinWidth:        720,
+			MinHeight:       480,
 			BackgroundColor: "light-dark(#f6f7f9, #0f1115)", // the page's --bg in src/style.css
 			// Opens where the user left it last time.
 			StateKey: "main",
