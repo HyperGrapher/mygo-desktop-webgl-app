@@ -76,15 +76,15 @@ jobs:
           "version=$version" >> $env:GITHUB_OUTPUT
 
           $config = [System.IO.File]::ReadAllText("mygo.config.ts")
-          $updated = [System.Text.RegularExpressions.Regex]::Replace(
-            $config,
-            'version: "[^"]+"',
-            ('version: "' + $version + '"'),
-            1
-          )
-          if ($updated -eq $config) {
+          $versionPattern = 'version: "[^"]+"'
+          if ($config -notmatch $versionPattern) {
             throw "Could not find the app version in mygo.config.ts."
           }
+          $updated = [System.Text.RegularExpressions.Regex]::Replace(
+            $config,
+            $versionPattern,
+            ('version: "' + $version + '"')
+          )
           [System.IO.File]::WriteAllText("mygo.config.ts", $updated, [System.Text.UTF8Encoding]::new($false))
 
       - name: Build ${{ matrix.label }} app
