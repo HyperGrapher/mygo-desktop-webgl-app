@@ -1,0 +1,124 @@
+name: Build and publish app
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build ${{ matrix.label }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: windows-latest
+            platform: windows/amd64
+            label: Windows
+            artifact: app-windows-amd64
+            files: build/windows-amd64/*.exe
+          - runner: macos-latest
+            platform: darwin/universal
+            label: macOS
+            artifact: app-macos-universal
+            files: build/darwin-universal/*.dmg
+          - runner: ubuntu-latest
+            platform: linux/amd64
+            label: Linux
+            artifact: app-linux-amd64
+            files: |
+              build/linux-amd64/*.deb
+              build/linux-amd64/*.tar.gz
+              build/linux-amd64/install.sh
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10.12.4
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Install frontend dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Set app version from tag
+        id: version
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_REF_NAME -notmatch '^v(?<version>(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*))$') {
+            throw "Expected a version tag like v1.2.3; got '$env:GITHUB_REF_NAME'."
+          }
+
+          $version = $Matches.version
+          "version=$version" >> $env:GITHUB_OUTPUT
+
+          $config = [System.IO.File]::ReadAllText("mygo.config.ts")
+          $updated = [System.Text.RegularExpressions.Regex]::Replace(
+            $config,
+            'version: "[^"]+"',
+            ('version: "' + $version + '"'),
+            1
+          )
+          if ($updated -eq $config) {
+            throw "Could not find the app version in mygo.config.ts."
+          }
+          [System.IO.File]::WriteAllText("mygo.config.ts", $updated, [System.Text.UTF8Encoding]::new($false))
+
+      - name: Build ${{ matrix.label }} app
+        run: pnpm exec mygo build -platform "${{ matrix.platform }}"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.files }}
+          if-no-files-found: error
+          compression-level: 0
+
+  publish:
+    name: Publish GitHub release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download platform builds
+        uses: actions/download-artifact@v8
+        with:
+          path: release-assets
+
+      - name: Publish tagged release
+        uses: softprops/action-gh-release@v3
+        with:
+          name: ${{ github.ref_name }}
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: |
+            release-assets/**/*.exe
+            release-assets/**/*.dmg
+            release-assets/**/*.deb
+            release-assets/**/*.tar.gz
+            release-assets/**/install.sh
